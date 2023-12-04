@@ -1,12 +1,13 @@
 package main
 
 import (
-	C "from-scratch/advcommon"
+	C "advent2023/advcommon"
 	"fmt"
 	"log"
+	"regexp"
 	"strconv"
-	"strings"
 )
+
 // The newly-improved calibration document consists of lines of text; each line originally
 // contained a specific calibration value that the Elves now need to recover. On each line,
 // the calibration value can be found by combining the first digit and the last digit
@@ -23,49 +24,25 @@ import (
 //
 // Consider your entire calibration document. What is the sum of all of the calibration values?
 
-
 func main() {
-	lines, err := C.File2Array()
+	lines, err := C.File2Array(1)
 	if err != nil {
 		log.Fatalln(err)
 	}
-
-	var fieldArea [][]int
-	fieldArea = make([][]int, 1000)
-	for i := range fieldArea {
-		fieldArea[i] = make([]int, 1000)
-	}
-	var fieldSpans []fieldSpan
+	totalSum := 0
 	for _, line := range lines {
-		tfs, err := newFieldSpan(line)
+		calibrationValue := 0
+		println(line)
+		re := regexp.MustCompile("[0-9]")
+		valueArray := re.FindAllString(line, -1)
+		// fmt.Println(valueArray)
+		calibrationString := valueArray[0] + valueArray[len(valueArray)-1]
+		calibrationValue, err = strconv.Atoi(calibrationString)
 		if err != nil {
 			log.Fatalln(err)
 		}
-		fieldSpans = append(fieldSpans, *tfs)
+		fmt.Println(calibrationValue)
+		totalSum = totalSum + calibrationValue
 	}
-
-	dangerCnt := 0
-	for _, span := range fieldSpans {
-		fmt.Printf("%d -> %d, %d -> %d\n", span.fromX, span.toX, span.fromY, span.toY)
-		if span.lineType == "x" {
-			for i := span.fromY; i <= span.toY; i++ {
-				fieldArea[span.fromX][i]++
-				if fieldArea[span.fromX][i] == 2 {
-					dangerCnt++
-				}
-			}
-		} else if span.lineType == "y" {
-			for i := span.fromX; i <= span.toX; i++ {
-				fieldArea[i][span.fromY]++
-				if fieldArea[i][span.fromY] == 2 {
-					dangerCnt++
-				}
-			}
-		}
-	}
-	//fmt.Println(len(fieldSpans))
-	fmt.Println(dangerCnt)
-	// fmt.Println(fieldArea[500][500])
-	// fmt.Println(fieldSpans)
-
+	fmt.Println(totalSum)
 }
